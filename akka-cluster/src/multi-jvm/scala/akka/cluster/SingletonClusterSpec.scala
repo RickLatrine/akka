@@ -13,7 +13,7 @@ case class SingletonClusterMultiNodeConfig(failureDetectorPuppet: Boolean) exten
   val first = role("first")
   val second = role("second")
 
-  commonConfig(debugConfig(on = false).
+  commonConfig(debugConfig(on = true).
     withFallback(ConfigFactory.parseString("""
       akka.cluster {
         auto-join                  = on
@@ -60,6 +60,7 @@ abstract class SingletonClusterSpec(multiNodeConfig: SingletonClusterMultiNodeCo
 
     "become singleton cluster when one node is shutdown" taggedAs LongRunningTest in {
       runOn(first) {
+        println("### ------------------")
         val secondAddress = address(second)
         testConductor.shutdown(second, 0)
 

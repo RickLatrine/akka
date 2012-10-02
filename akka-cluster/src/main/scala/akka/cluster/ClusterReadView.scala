@@ -46,10 +46,13 @@ private[akka] class ClusterReadView(cluster: Cluster) extends Closeable {
 
       def receive = {
         case SeenChanged(convergence, seenBy) ⇒
+          println("# SeenChanged: " + convergence)
           state = state.copy(convergence = convergence, seenBy = seenBy)
         case MemberRemoved(member) ⇒
+          println("# Removed: " + member)
           state = state.copy(members = state.members - member, unreachable = state.unreachable - member)
         case MemberUnreachable(member) ⇒
+          println("# Unreachable: " + member)
           // replace current member with new member (might have different status, only address is used in equals)
           state = state.copy(members = state.members - member, unreachable = state.unreachable - member + member)
         case MemberDowned(member) ⇒
@@ -58,12 +61,16 @@ private[akka] class ClusterReadView(cluster: Cluster) extends Closeable {
         case event: MemberEvent ⇒
           // replace current member with new member (might have different status, only address is used in equals)
           state = state.copy(members = state.members - event.member + event.member)
-        case LeaderChanged(leader)           ⇒ state = state.copy(leader = leader)
-        case ConvergenceChanged(convergence) ⇒ state = state.copy(convergence = convergence)
-        case s: CurrentClusterState          ⇒ state = s
-        case CurrentInternalStats(stats)     ⇒ _latestStats = stats
-        case ClusterMetricsChanged(nodes)    ⇒ _clusterMetrics = nodes
-        case _                               ⇒ // ignore, not interesting
+        case LeaderChanged(leader) ⇒
+          state = state.copy(leader = leader)
+          println("## leader: " + leader)
+        case ConvergenceChanged(convergence) ⇒
+          println("## Convergence: " + convergence)
+          state = state.copy(convergence = convergence)
+        case s: CurrentClusterState       ⇒ state = s
+        case CurrentInternalStats(stats)  ⇒ _latestStats = stats
+        case ClusterMetricsChanged(nodes) ⇒ _clusterMetrics = nodes
+        case _                            ⇒ // ignore, not interesting
       }
     }).withDispatcher(cluster.settings.UseDispatcher), name = "clusterEventBusListener")
   }
