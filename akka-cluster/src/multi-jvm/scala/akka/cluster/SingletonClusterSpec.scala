@@ -13,7 +13,7 @@ case class SingletonClusterMultiNodeConfig(failureDetectorPuppet: Boolean) exten
   val first = role("first")
   val second = role("second")
 
-  commonConfig(debugConfig(on = true).
+  commonConfig(debugConfig(on = false).
     withFallback(ConfigFactory.parseString("""
       akka.cluster {
         auto-join                  = on
